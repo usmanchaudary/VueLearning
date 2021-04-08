@@ -1,0 +1,34 @@
+{
+  "name": "ClientApp",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "npm run set_node_env:dev webpack serve",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^5.2.0",
+    "globe": "^0.3.1",
+    "mini-css-extract-plugin": "^1.4.1",
+    "path": "^0.12.7",
+    "sass": "^1.32.8",
+    "sass-loader": "^11.0.1",
+    "style-loader": "^2.0.0",
+    "vue-loader": "^15.9.6",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^5.31.0",
+    "webpack-cli": "^4.6.0"
+  },
+  "dependencies": {
+    "bootstrap": "^4.6.0",
+    "bootstrap-vue": "^2.21.2",
+    "glob": "^7.1.6",
+    "jquery": "^3.6.0",
+    "popper.js": "^1.16.1",
+    "vue": "^2.6.12"
+  }
+}
