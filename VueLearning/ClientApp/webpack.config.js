@@ -1,10 +1,22 @@
 ﻿const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const glob = require('glob');
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+
+const isProduction = (process.env.NODE_ENV === 'production');
+if (isProduction) {
+    console.log("Bundling in PRODUCTION mode")
+} else {
+    console.log("Bundling in DEVELOPMENT mode")
+}
+
 const entries = {};
 entries['styles'] = path.join(__dirname, 'assets/styles/styles.scss');
+
 const IGNORE_PATHS = ['unused'];
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 glob.sync('./views/**/main.js').forEach(path => {
     const chunk = path.split('./views/')[1].split('/main.js')[0]
@@ -17,11 +29,13 @@ glob.sync('./views/**/main.js').forEach(path => {
         }
     }
 });
+
 module.exports = {
     entry: entries,
+    mode: isProduction ? 'production' : 'development',
     output: {
         path: path.resolve(__dirname, '../wwwroot'),
-        filename: 'js/[name].bundle.js'
+        filename: 'js/[name].bundle.js',
     },
     module: {
         rules: [
@@ -54,12 +68,71 @@ module.exports = {
                 test: /\.(png|jpe?g|gif)$/i,
                 type: 'asset/resource',
             },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            ['@babel/preset-env', { targets: "defaults" }],
+                        ]
+                    }
+                },
+            },
         ]
+    },
+    devServer: {
+        historyApiFallback: false,
+        contentBase: [path.join(__dirname, '../wwwroot')],
+        hot: true,
+        noInfo: true,
+        overlay: true,
+        https: true,
+        port: 8080,
+        proxy: {
+            '*': {
+                target: 'https://localhost:44318',
+                changeOrigin: false,
+                secure: false
+            }
+        },
+
     },
     plugins: [
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({
             filename: 'css/[name].bundle.css'
         }),
-    ]
+        new CleanWebpackPlugin(),
+    ],
+    optimization: {
+        runtimeChunk: 'single',
+        splitChunks: {
+            minSize: 0,
+            cacheGroups: {
+                core: {
+                    name: 'core',
+                    chunks: 'all',
+                    test: /[\\/]node_modules[\\/](bootstrap-vue|vue|vuelidate|font-awesome|popper.js|portal-vue|process|regenerator-runtime|setimmediate|vue-functional-data-merge)[\\/]/,
+                    priority: 20,
+                    enforce: true
+                },
+                vendor: {
+                    name: 'vendor',
+                    chunks: 'all',
+                    test: /[\\/]node_modules[\\/]/,
+                    priority: 10,
+                    enforce: true
+                }
+            }
+        }
+    }
+}
+
+if (isProduction) {
+    module.exports.plugins = (module.exports.plugins || []).concat([
+        new CompressionWebpackPlugin(),
+        new OptimizeCssAssetsPlugin(),
+    ])
 }

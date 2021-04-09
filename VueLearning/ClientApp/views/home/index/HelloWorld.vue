@@ -8,7 +8,7 @@
         <b-button>This is vue-bootstrap </b-button>
         <b-list-group>
             <b-list-group-item v-for="data in dataarray" :key="data"
-                               href="#" @click="getObject($event)">click On me</b-list-group-item>
+                               href="#" @click="getObject($event)">click on me</b-list-group-item>
 
         </b-list-group>
     </div>
